@@ -155,3 +155,24 @@ function calculate(allStudents, AssignmentGroup) {
 
 allStudents = calculate(allStudents, AssignmentGroup);
 console.log(allStudents)
+
+// ----------------------------------------------
+//https://www.freecodecamp.org/news/javascript-date-comparison-how-to-compare-dates-in-js/
+//https://www.geeksforgeeks.org/compare-two-dates-using-javascript/
+const dueDate = new Date(AssignmentGroup.assignments.due_at)
+const submittedDate = new Date(LearnerSubmissions.submission.submitted_at) 
+
+let isLate = false;
+let finalStore = LearnerSubmissions.submission.score;
+if (submittedDate < dueDate) {
+  
+ isLate = true;
+
+}else {
+  isLate = false;
+  finalStore *= 0.9
+}
+
+
+console.log(isLate)
+console.log(finalStore)
