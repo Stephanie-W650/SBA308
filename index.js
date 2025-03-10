@@ -99,7 +99,7 @@ for (let i = 0; i < uniqueStudent.length; i++) {
   //allStudents = [...studentProjects] //does not work
   //allStudents = [studentProjects[1], studentProjects[2]];
   //allStudents.push(studentProjects)
-  let students = { learner_id: learnerID, projects: studentProjects }
+  let students = { learner_id: learnerID, projects: studentProjects, scores: {} }
   allStudents.push(students)
 
 }
@@ -129,50 +129,84 @@ function calculate(allStudents, AssignmentGroup) {
         //continue;
         //break;
         if (assignment.id === project.assignment_id) {
-          let percentage = (project.submission.score / assignment.points_possible)
+          //let percentage = (project.submission.score / assignment.points_possible)
           // student.scores{0}
-          student.scores = {};
+
+
+          //https://www.freecodecamp.org/news/javascript-date-comparison-how-to-compare-dates-in-js/
+          //https://www.geeksforgeeks.org/compare-two-dates-using-javascript/
+          const dueDate = new Date(assignment.due_at)
+          const submittedDate = new Date(project.submission.submitted_at)//reference error when outside of function
           //https://stackoverflow.com/questions/7479520/javascript-cannot-set-property-of-undefined
           //terminal:student.scores[project.assignment_id] = percentage;
           //TypeError: Cannot set properties of undefined (setting '1')
-          student.scores[project.assignment_id] = percentage;
-          //totalScores += percentage
-          // totalAssignemtn += 
-          totalScores += project.submission.score;
+
+          //totalPoints += assignment.points_possible;
+
+          let isLate = true;
+          let finalScore = project.submission.score;
+
+          if (submittedDate > dueDate) {
+
+            isLate = true;
+            finalScore = finalScore * 0.9
+
+          } else {
+            isLate = false;
+
+          }
+          // student.scores= {}
+          student.scores[project.assignment_id] = finalScore / assignment.points_possible;
+
+          totalScores += finalScore
           totalPoints += assignment.points_possible;
+          console.log(isLate)
           break;
+
         }
       }
     }
     student.average = totalScores / totalPoints;
+     
 
-  }
+        }
+      return allStudents;
+      //console.log(allStudents)//does not work here
+    }
 
+    allStudents = calculate(allStudents, AssignmentGroup);
+    // console.log(allStudents)
 
-  return allStudents;
-  //console.log(allStudents)//does not work here
-}
+    // ----------------------------------------------
+    function getLearnerData(course, ag, submissions) {
+      const result = [];
 
-allStudents = calculate(allStudents, AssignmentGroup);
-console.log(allStudents)
+      for (let i = 0; i < allStudents.length; i++) {
+        let aStudent = allStudents[i]
+        let finalStudent = {
+          id: aStudent.learner_id,
+          avg: aStudent.average
+        }
+        for (let assignmentId in aStudent.scores) {
+          finalStudent[assignmentId] = aStudent.scores[assignmentId]
+        }
+        result.push(finalStudent)
+      } return result;
+    }
 
-// ----------------------------------------------
-//https://www.freecodecamp.org/news/javascript-date-comparison-how-to-compare-dates-in-js/
-//https://www.geeksforgeeks.org/compare-two-dates-using-javascript/
-const dueDate = new Date(AssignmentGroup.assignments.due_at)
-const submittedDate = new Date(LearnerSubmissions.submission.submitted_at) 
+    const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
-let isLate = false;
-let finalStore = LearnerSubmissions.submission.score;
-if (submittedDate < dueDate) {
-  
- isLate = true;
+    console.log(result);
 
-}else {
-  isLate = false;
-  finalStore *= 0.9
-}
+    try {
+      
+    if (result.length == 0) {
+     throw "Error"
+    }
+      
+    } catch (err) {
+      console.log(err);
+    } finally {
+      console.log(result.length );
+    }
 
-
-console.log(isLate)
-console.log(finalStore)
